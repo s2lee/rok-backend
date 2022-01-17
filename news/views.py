@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .serializers import ArticleSerializer, CommentSerializer, AllArticleSerializer, CommentOnlyserializer
+from .serializers import ArticleSerializer, AllArticleSerializer, CommentSerializer
 from .models import Article, Comment
 
 
@@ -18,27 +18,22 @@ class AllArticleViewSet(viewsets.ModelViewSet):
 class ArticleViewSet(viewsets.ModelViewSet):
     serializer_class = ArticleSerializer
 
-    # permission_classes = [IsAuthenticated]
-
     def get_queryset(self):
         return Article.objects.filter(category__name=self.kwargs.get('category'))
 
-    def create(self, serializer, **kwargs):
-        author = self.request.user
-
-        serializer.save(author=author)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-
-
-class CommentOnlyViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentOnlyserializer
 
     def get_queryset(self):
         return Comment.objects.filter(parent=None, article=self.kwargs.get('article_id'))
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 
 # class ItemApiView(APIView):
 #     def post(self, request, pk, item_type):
