@@ -26,6 +26,8 @@ class Article(models.Model):
     class Meta:
         ordering = ["-date_posted"]
 
+    objects = models.Manager()
+
 
 class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comment')
@@ -37,3 +39,5 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.contents
+
+    objects = models.Manager()
