@@ -1,4 +1,4 @@
-from .views import ArticleViewSet, CommentViewSet, AllArticleViewSet
+from .views import ArticleViewSet, CommentViewSet, AllArticleViewSet, ItemApiView
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 
@@ -33,5 +33,5 @@ urlpatterns = [
     path('<str:category>/', article_list, name='article-list'),
     path('<str:category>/<int:pk>/', article_detail, name='article-detail'),
     path('<int:article_id>/comments/', comment_list, name='comment-list'),
-    # path('<int:pk>/<str:item_type>', ItemApiView.as_view())
+    path('<int:pk>/<str:item_type>', ItemApiView.as_view())
 ]

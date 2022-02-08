@@ -34,29 +34,32 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+# 받는거 따로 사용하는거 따로 분리
+class ItemApiView(APIView):
+    def post(self, request, pk, item_type):
+        user = request.user
+        article = get_object_or_404(Article, pk=pk)
+        # item = Item.objects.get(user=user)
+        success = True
+        print(user)
+        print(item_type)
+        def use_item():
+            nonlocal success
+            _article = getattr(article, item_type)
+            print(_article)
+            # _item = getattr(item, item_type)
+            if _article.filter(id=user.id).exists():
+                _article.remove(user)
+            else:
+                _article.add(user)
+                # if _item >= 1:
+                #     _article.add(user)
+                #     _item -= 1
+                #     setattr(item, item_type, _item)
+                #     item.save()
+                # else:
+                #     success = False
 
-# class ItemApiView(APIView):
-#     def post(self, request, pk, item_type):
-#         user = request.user
-#         article = get_object_or_404(Article, pk=pk)
-#         item = Item.objects.get(user=user)
-#         success = True
-
-#         def use_item():
-#             nonlocal success
-#             _article = getattr(article, item_type)
-#             _item = getattr(item, item_type)
-#             if _article.filter(id=user.id).exists():
-#                 _article.remove(user)
-#             else:
-#                 if _item >= 1:
-#                     _article.add(user)
-#                     _item -= 1
-#                     setattr(item, item_type, _item)
-#                     item.save()
-#                 else:
-#                     success = False
-
-#         use_item()
-#         message = f'{item_type} 성공적으로 사용' if success else f'{item_type} 부족'
-#         return Response({"message": message})
+        use_item()
+        message = f'{item_type} 성공적으로 사용' if success else f'{item_type} 부족'
+        return Response({"message": message})

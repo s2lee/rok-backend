@@ -19,6 +19,7 @@ class Article(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     spear = models.ManyToManyField(User, blank=True, related_name='spear_article')
     shield = models.ManyToManyField(User, blank=True, related_name='shield_article')
+    image = models.ImageField(blank=True, null=True, upload_to="uploads")
 
     def __str__(self):
         return self.title
