@@ -37,6 +37,9 @@ class MyUser(AbstractBaseUser):
         max_length=15,
         unique=True
     )
+    point = models.PositiveIntegerField(
+        null=True,
+        default=0)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)

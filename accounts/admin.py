@@ -7,4 +7,5 @@ class UserAdmin(admin.ModelAdmin):
     list_display = (
         'username',
         'nickname',
+        'point'
     )

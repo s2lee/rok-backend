@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 
 class CustomRegisterSerializer(RegisterSerializer):
     nickname = serializers.CharField(max_length=15,
-    validators=[UniqueValidator(queryset=get_user_model().objects.all())])
+                                     validators=[UniqueValidator(queryset=get_user_model().objects.all())])
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
