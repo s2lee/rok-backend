@@ -34,7 +34,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def action_button(request, pk, action_type):
     article = get_object_or_404(Article, pk=pk)
     article_action = getattr(article, action_type)
@@ -51,5 +50,6 @@ def action_button(request, pk, action_type):
             article_action.add(user)
     else:
         response.data = {'detail': '기사 작성자는 사용할 수 없습니다.'}
+        response.status_code = status.HTTP_401_UNAUTHORIZED
     response.data['total_action_count'] = article_action.count()
     return response
