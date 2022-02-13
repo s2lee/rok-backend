@@ -14,15 +14,18 @@ class ArticleSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source='category.name')
     author_name = serializers.ReadOnlyField(source='author.username')
     total_spear = serializers.SerializerMethodField()
+    total_shield = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
         fields = ('id', 'category', 'title', 'contents', 'date_posted', 'spear', 'shield', 'category_name',
-                  'author_name', 'image', 'total_spear')
+                  'author_name', 'image', 'total_spear', 'total_shield')
 
     def get_total_spear(self, obj):
-        total = obj.spear.count()
-        return total
+        return obj.spear.count()
+
+    def get_total_shield(self, obj):
+        return obj.shield.count()
 
 
 class CommentSerializer(serializers.ModelSerializer):
