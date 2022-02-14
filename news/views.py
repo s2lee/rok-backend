@@ -34,6 +34,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def action_button(request, pk, action_type):
     article = get_object_or_404(Article, pk=pk)
     article_action = getattr(article, action_type)
