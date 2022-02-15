@@ -20,7 +20,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ('id', 'category', 'title', 'contents', 'date_posted', 'spear', 'shield', 'category_name',
-                  'author_name', 'image', 'spear_count', 'shield_count', 'comment_count')
+                  'author_name', 'image', 'spear_count', 'shield_count', 'comments_count')
 
     def get_spear_count(self, obj):
         return obj.spear.count()
@@ -46,20 +46,33 @@ class CommentSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-
-class ArticleSectionSerializer(serializers.ModelSerializer):
+class TopArticleSerializer(serializers.ModelSerializer):
     nickname = serializers.ReadOnlyField(source='author.nickname')
     comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'contents', 'date_posted', 'nickname', 'image', 'comments_count')
+        fields = ('id', 'title', 'contents', 'date_posted', 'image', 'comments_count')
+
+
+class ArticleSectionSerializer(serializers.ModelSerializer):
+    nickname = serializers.ReadOnlyField(source='author.nickname')
+    comments_count = serializers.SerializerMethodField()
+    top_article = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Article
+        fields = ('id', 'title', 'date_posted', 'nickname', 'image', 'comments_count', 'top_article')
 
     def get_comments_count(self, obj):
         return obj.comment.count()
 
+    def get_top_article(self, obj):
+        article = obj.objects.all()
+        return TopArticleSerializer(article, many=True)
 
-class ArticlePostSerializer(serializers.ModelSerializer):
+
+class ArticleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ('title', 'category', 'contents', 'author', 'date_posted', 'image')  # time, spear, shield 넣는건가?

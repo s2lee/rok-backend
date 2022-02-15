@@ -24,6 +24,16 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
+    # def get_spear_count(self, obj):
+    #     return obj.spear.count()
+    #
+    # def get_shield_count(self, obj):
+    #     return obj.shield.count()
+    #
+    # def get_comments_count(self, obj):
+    #     return obj.comment.count()
+
+
     class Meta:
         ordering = ["-date_posted"]
 

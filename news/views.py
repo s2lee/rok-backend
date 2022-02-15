@@ -1,9 +1,10 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .serializers import ArticleSerializer, AllArticleSerializer, CommentSerializer
+from .serializers import *
 from .models import Article, Comment
 
 
@@ -54,3 +55,42 @@ def action_button(request, pk, action_type):
         response.status_code = status.HTTP_401_UNAUTHORIZED
     response.data['total_action_count'] = article_action.count()
     return response
+
+
+# class ArticleSectionListAPIView(APIView):
+#     def get(self, request):
+#         article = Article.objects.filter(category__name=self.kwargs.get('category'))
+#         top_article = article.order_by('date_posted')[:3]
+#
+#         article_serializer = ArticleSectionSerializer(article, many=True)
+#         top_article_serializer = TopArticleSerializer(top_article, many=True)
+#
+#         return Response({
+#             'articles': article_serializer.data,
+#             'top_articles': top_article_serializer.data
+#         })
+
+class ArticleSectionListAPIView(generics.ListAPIView):
+    serializer_class = ArticleSectionSerializer
+
+    def get_queryset(self):
+        return Article.objects.filter(category__name=self.kwargs.get('category'))
+
+
+# category 넣기
+class ArticleCreateAPIView(generics.CreateAPIView):
+    serializer_class = ArticleCreateSerializer
+    permission_classes = IsAuthenticated
+
+    def perform_create(self, serializer):
+        category = self.kwargs.get('category')
+        serializer.save(author=self.request.user, category=category.id)
+
+
+# select, prefetch
+class ArticleRetrieveAPIView(generics.RetrieveAPIView):
+    serializer_class = ArticleDetailSerializer
+
+    def get_queryset(self):
+        return Article.objects.filter(category__name=self.kwargs.get('category'))
+
