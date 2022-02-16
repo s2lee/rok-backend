@@ -36,5 +36,6 @@ urlpatterns = [
     path('<int:pk>/<str:action_type>', action_button, name='action-button'),
     path('test/<str:category>/', ArticleSectionListAPIView.as_view(), ),
     path('test/<str:category>/post', ArticleCreateAPIView.as_view()),
-    path('test/<str:category>/<int:pk>', ArticleDetailAPIView.as_view())
+    path('test/<str:category>/<int:pk>', ArticleDetailAPIView.as_view()),
+    path('test1/<str:category>', ArticleListCreateAPIView.as_view())
 ]

@@ -73,11 +73,11 @@ class ArticleSectionSerializer(serializers.ModelSerializer):
     #     article = obj.objects.all()
     #     return TopArticleSerializer(article, many=True)
 
-
+# author 필요 없고
 class ArticleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ('title', 'category', 'contents', 'author', 'image')
+        fields = ('title', 'contents', 'image')
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):

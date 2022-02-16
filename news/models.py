@@ -33,6 +33,9 @@ class Article(models.Model):
     # def get_comments_count(self, obj):
     #     return obj.comment.count()
 
+    # def get_total_point(self):
+    #     return self.spear.count() - self.shield.count()
+
 
     class Meta:
         ordering = ["-date_posted"]

@@ -98,6 +98,22 @@ class ArticleDetailAPIView(generics.RetrieveAPIView):
     #         'spear', 'shield')
     #     return article
 
+
+class ArticleListCreateAPIView(generics.ListCreateAPIView):
+    def get_queryset(self):
+        return Article.objects.filter(category__name=self.kwargs.get('category'))
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ArticleSectionSerializer
+        else:
+            return ArticleCreateSerializer
+
+    def perform_create(self, serializer):
+        category = Category.objects.get(name=self.kwargs.get('category'))
+        serializer.save(author=self.request.user, category=category)
+
+#
 # class ArticleViewSet2(mixins.CreateModelMixin,
 #                       mixins.ListModelMixin,
 #                       mixins.RetrieveModelMixin,
@@ -126,4 +142,4 @@ class ArticleDetailAPIView(generics.RetrieveAPIView):
 #
 #     def get_queryset(self):
 #         qs = super().get_queryset()
-#         return qs.filter(owner=self.request.user).select_related('restaurant').prefetch_related('order_menu')
+#         return qs.filter(owner=self.request.user)
