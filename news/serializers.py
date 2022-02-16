@@ -47,35 +47,37 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class TopArticleSerializer(serializers.ModelSerializer):
-    nickname = serializers.ReadOnlyField(source='author.nickname')
     comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
         fields = ('id', 'title', 'contents', 'date_posted', 'image', 'comments_count')
 
+    def get_comments_count(self, obj):
+        return obj.comment.count()
+
 
 class ArticleSectionSerializer(serializers.ModelSerializer):
     nickname = serializers.ReadOnlyField(source='author.nickname')
     comments_count = serializers.SerializerMethodField()
-    top_article = serializers.SerializerMethodField()
+    # top_article = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'date_posted', 'nickname', 'image', 'comments_count', 'top_article')
+        fields = ('id', 'title', 'date_posted', 'nickname', 'image', 'comments_count')
 
     def get_comments_count(self, obj):
         return obj.comment.count()
 
-    def get_top_article(self, obj):
-        article = obj.objects.all()
-        return TopArticleSerializer(article, many=True)
+    # def get_top_article(self, obj):
+    #     article = obj.objects.all()
+    #     return TopArticleSerializer(article, many=True)
 
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ('title', 'category', 'contents', 'author', 'date_posted', 'image')  # time, spear, shield 넣는건가?
+        fields = ('title', 'category', 'contents', 'author', 'image')
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
@@ -87,7 +89,7 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ('title', 'contents', 'nickname', 'date_posted', 'spear', 'shield',
-                  'image', 'spear_count', 'shield_count')
+                  'image', 'spear_count', 'shield_count', 'comments_count')
 
     def get_spear_count(self, obj):
         return obj.spear.count()
