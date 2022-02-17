@@ -103,6 +103,32 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Article.objects.filter(category__name=self.kwargs.get('category'))
 
+    # def list(self, request, *args, **kwargs):
+    #     # response = super().list(request, *args, **kwargs)
+    #     article = self.get_queryset()
+    #     top_article = article.order_by('date_posted')[:2]
+    #     top_article_serializer = TopArticleSerializer(top_article, many=True)
+    #     serializer = self.get_serializer()
+    #     # serializer.data.append(top_article_serializer)
+    #     # response.data['top_articles'] = top_article_serializer.data
+    #     return Response({
+    #         'article': serializer.data,
+    #         'top_article': top_article_serializer
+    #     })
+
+    def get(self, request, *args, **kwargs):
+        article = self.get_queryset()
+        top_article = article.order_by('date_posted')[:2]
+
+        article_serializer = ArticleSectionSerializer(article, many=True)
+        top_article_serializer = TopArticleSerializer(top_article, many=True)
+
+        return Response({
+            'articles': article_serializer.data,
+            'top_articles': top_article_serializer.data
+        })
+
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ArticleSectionSerializer
