@@ -60,7 +60,7 @@ class TopArticleSerializer(serializers.ModelSerializer):
 class ArticleSectionSerializer(serializers.ModelSerializer):
     nickname = serializers.ReadOnlyField(source='author.nickname')
     comments_count = serializers.SerializerMethodField()
-    # top_article = serializers.SerializerMethodField()
+    # top_articles = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -69,11 +69,14 @@ class ArticleSectionSerializer(serializers.ModelSerializer):
     def get_comments_count(self, obj):
         return obj.comment.count()
 
+    # def get_top_articles(self, obj):
+    #     data = TopArticleSerializer(obj, many=True).data
+    #     return data
+
     # def get_top_article(self, obj):
     #     article = obj.objects.all()
     #     return TopArticleSerializer(article, many=True)
 
-# author 필요 없고
 class ArticleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
