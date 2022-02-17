@@ -58,25 +58,6 @@ def action_button(request, pk, action_type):
     return response
 
 
-class ArticleSectionListAPIView(APIView):
-    def get(self, request, category):
-        article = Article.objects.filter(category__name=category)
-        top_article = article.order_by('date_posted')[:2]
-
-        article_serializer = ArticleSectionSerializer(article, many=True)
-        top_article_serializer = TopArticleSerializer(top_article, many=True)
-
-        return Response({
-            'articles': article_serializer.data,
-            'top_articles': top_article_serializer.data
-        })
-
-# class ArticleSectionListAPIView(generics.ListAPIView):
-#     serializer_class = ArticleSectionSerializer
-#
-#     def get_queryset(self):
-#         return Article.objects.filter(category__name=self.kwargs.get('category'))
-
 # select, prefetch -> object가 아니라 queryset에 해야하고. Retrieve는 category 연결안해도 pk로 찾음
 class ArticleDetailAPIView(generics.RetrieveAPIView):
     serializer_class = ArticleDetailSerializer
@@ -93,24 +74,11 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Article.objects.filter(category__name=self.kwargs.get('category'))
 
-    # def list(self, request, *args, **kwargs):
-    #     # response = super().list(request, *args, **kwargs)
-    #     article = self.get_queryset()
-    #     top_article = article.order_by('date_posted')[:2]
-    #     top_article_serializer = TopArticleSerializer(top_article, many=True)
-    #     serializer = self.get_serializer()
-    #     # serializer.data.append(top_article_serializer)
-    #     # response.data['top_articles'] = top_article_serializer.data
-    #     return Response({
-    #         'article': serializer.data,
-    #         'top_article': top_article_serializer
-    #     })
-
     def list(self, request, *args, **kwargs):
         article = self.get_queryset()
-        top_article = article.order_by('date_posted')[:2]
+        top_article = article.order_by('date_posted')[:2]  # spear 순으로
         article_serializer = self.get_serializer(article, many=True)
-        top_article_serializer = TopArticleSerializer(top_article, many=True)
+        top_article_serializer = self.get_serializer(top_article, many=True)
         return Response({
             'articles': article_serializer.data,
             'top_articles': top_article_serializer.data
@@ -125,6 +93,20 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         category = Category.objects.get(name=self.kwargs.get('category'))
         serializer.save(author=self.request.user, category=category)
+
+
+    # def list(self, request, *args, **kwargs):
+    #     # response = super().list(request, *args, **kwargs)
+    #     article = self.get_queryset()
+    #     top_article = article.order_by('date_posted')[:2]
+    #     top_article_serializer = TopArticleSerializer(top_article, many=True)
+    #     serializer = self.get_serializer()
+    #     # serializer.data.append(top_article_serializer)
+    #     # response.data['top_articles'] = top_article_serializer.data
+    #     return Response({
+    #         'article': serializer.data,
+    #         'top_article': top_article_serializer
+    #     })
 
 
 class ArticleViewSet2(mixins.CreateModelMixin,
