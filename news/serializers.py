@@ -46,36 +46,18 @@ class CommentSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-class TopArticleSerializer(serializers.ModelSerializer):
-    comments_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Article
-        fields = ('id', 'title', 'contents', 'date_posted', 'image', 'comments_count')
-
-    def get_comments_count(self, obj):
-        return obj.comment.count()
-
-
 class ArticleSectionSerializer(serializers.ModelSerializer):
     nickname = serializers.ReadOnlyField(source='author.nickname')
     comments_count = serializers.SerializerMethodField()
-    # top_articles = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'date_posted', 'nickname', 'image', 'comments_count')
+        fields = ('id', 'title', 'contents', 'date_posted',
+                  'nickname', 'image', 'comments_count')
 
     def get_comments_count(self, obj):
         return obj.comment.count()
 
-    # def get_top_articles(self, obj):
-    #     data = TopArticleSerializer(obj, many=True).data
-    #     return data
-
-    # def get_top_article(self, obj):
-    #     article = obj.objects.all()
-    #     return TopArticleSerializer(article, many=True)
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
     class Meta:
