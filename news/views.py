@@ -77,16 +77,6 @@ class ArticleSectionListAPIView(APIView):
 #     def get_queryset(self):
 #         return Article.objects.filter(category__name=self.kwargs.get('category'))
 
-
-# category 넣기
-class ArticleCreateAPIView(generics.CreateAPIView):
-    serializer_class = ArticleCreateSerializer
-    permission_classes = IsAuthenticated
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-
 # select, prefetch -> object가 아니라 queryset에 해야하고. Retrieve는 category 연결안해도 pk로 찾음
 class ArticleDetailAPIView(generics.RetrieveAPIView):
     serializer_class = ArticleDetailSerializer
@@ -116,18 +106,15 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
     #         'top_article': top_article_serializer
     #     })
 
-    def get(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         article = self.get_queryset()
         top_article = article.order_by('date_posted')[:2]
-
-        article_serializer = ArticleSectionSerializer(article, many=True)
+        article_serializer = self.get_serializer(article, many=True)
         top_article_serializer = TopArticleSerializer(top_article, many=True)
-
         return Response({
             'articles': article_serializer.data,
             'top_articles': top_article_serializer.data
         })
-
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -139,33 +126,27 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
         category = Category.objects.get(name=self.kwargs.get('category'))
         serializer.save(author=self.request.user, category=category)
 
-#
-# class ArticleViewSet2(mixins.CreateModelMixin,
-#                       mixins.ListModelMixin,
-#                       mixins.RetrieveModelMixin,
-#                       GenericViewSet):
-#
-#     def create(self, request, *args, **kwargs):
-#         return super().create(request, *args, **kwargs)
-#
-#     def list(self, request, *args, **kwargs):
-#         return super().list(request, *args, **kwargs)
-#
-#     def retrieve(self, request, *args, **kwargs):
-#         return super().retrieve(request, *args, **kwargs)
-#
-#     def get_serializer_class(self):
-#         if self.action == 'create':
-#             return ArticleCreateSerializer
-#         if self.action == 'retrieve':
-#             return ArticleDetailSerializer
-#         if self.action == 'list':
-#             return ArticleSectionSerializer
-#         return super().get_serializer_class()
-#
-#     def perform_create(self, serializer):
-#         serializer.save(author=self.request.user)
-#
-#     def get_queryset(self):
-#         qs = super().get_queryset()
-#         return qs.filter(owner=self.request.user)
+
+class ArticleViewSet2(mixins.CreateModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.RetrieveModelMixin,
+                      GenericViewSet):
+
+    serializer_class_by_action = {
+        'list': ArticleSectionSerializer,
+        'create': ArticleCreateSerializer,
+        'retrieve': ArticleDetailSerializer,
+    }
+
+    def get_serializer_class(self):
+        if hasattr(self, 'serializer_class_by_action'):
+            return self.serializer_class_by_action.get(self.action, self.serializer_class)
+        return super().get_serializer_class()
+
+    def perform_create(self, serializer):
+        category = Category.objects.get(name=self.kwargs.get('category'))
+        serializer.save(author=self.request.user, category=category)
+
+    def get_queryset(self):
+        return Article.objects.filter(category__name=self.kwargs.get('category'))
+
