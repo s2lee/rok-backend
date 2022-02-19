@@ -58,18 +58,6 @@ def action_button(request, pk, action_type):
     return response
 
 
-# select, prefetch -> object가 아니라 queryset에 해야하고. Retrieve는 category 연결안해도 pk로 찾음
-class ArticleDetailAPIView(generics.RetrieveAPIView):
-    serializer_class = ArticleDetailSerializer
-    queryset = Article.objects.select_related('author').prefetch_related(
-            'spear', 'shield').all()
-
-    # def get_object(self):
-    #     article = Article.objects.select_related('author').prefetch_related(
-    #         'spear', 'shield')
-    #     return article
-
-
 class ArticleListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Article.objects.filter(category__name=self.kwargs.get('category'))
@@ -95,40 +83,8 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
         serializer.save(author=self.request.user, category=category)
 
 
-    # def list(self, request, *args, **kwargs):
-    #     # response = super().list(request, *args, **kwargs)
-    #     article = self.get_queryset()
-    #     top_article = article.order_by('date_posted')[:2]
-    #     top_article_serializer = TopArticleSerializer(top_article, many=True)
-    #     serializer = self.get_serializer()
-    #     # serializer.data.append(top_article_serializer)
-    #     # response.data['top_articles'] = top_article_serializer.data
-    #     return Response({
-    #         'article': serializer.data,
-    #         'top_article': top_article_serializer
-    #     })
-
-
-class ArticleViewSet2(mixins.CreateModelMixin,
-                      mixins.ListModelMixin,
-                      mixins.RetrieveModelMixin,
-                      GenericViewSet):
-
-    serializer_class_by_action = {
-        'list': ArticleSectionSerializer,
-        'create': ArticleCreateSerializer,
-        'retrieve': ArticleDetailSerializer,
-    }
-
-    def get_serializer_class(self):
-        if hasattr(self, 'serializer_class_by_action'):
-            return self.serializer_class_by_action.get(self.action, self.serializer_class)
-        return super().get_serializer_class()
-
-    def perform_create(self, serializer):
-        category = Category.objects.get(name=self.kwargs.get('category'))
-        serializer.save(author=self.request.user, category=category)
-
-    def get_queryset(self):
-        return Article.objects.filter(category__name=self.kwargs.get('category'))
+class ArticleDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = ArticleDetailSerializer
+    queryset = Article.objects.select_related('author').prefetch_related(
+            'spear', 'shield').all()
 

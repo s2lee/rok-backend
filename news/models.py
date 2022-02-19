@@ -17,23 +17,33 @@ class Article(models.Model):
     contents = models.TextField(max_length=150)
     date_posted = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    spear = models.ManyToManyField(User, blank=True, related_name='spear_article')
-    shield = models.ManyToManyField(User, blank=True, related_name='shield_article')
-    image = models.ImageField(blank=True, null=True, upload_to="uploads")
+    spear = models.ManyToManyField(User, blank=True, related_name='article_spear')
+    shield = models.ManyToManyField(User, blank=True, related_name='shield')
+    image = models.ImageField(blank=True, null=True, upload_to="article/%Y/%m/%d")
 
     def __str__(self):
         return self.title
+
+    # @property
+    # def num_likes(self):
+    #     return self.spaer.count()
+
+    def number_of_likes(self):
+        return self.spear.count()
+
+    def get_comments_count(self):
+        return self.comment.count()
 
     # def get_spear_count(self, obj):
     #     return obj.spear.count()
     #
     # def get_shield_count(self, obj):
     #     return obj.shield.count()
-    #
+
     # def get_comments_count(self, obj):
     #     return obj.comment.count()
-
-    # def get_total_point(self):
+    # 
+    # # def get_total_point(self):
     #     return self.spear.count() - self.shield.count()
 
 
