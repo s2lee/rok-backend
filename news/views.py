@@ -85,8 +85,9 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
 
 class ArticleDetailAPIView(generics.RetrieveAPIView):
     serializer_class = ArticleDetailSerializer
-    queryset = Article.objects.select_related('author').prefetch_related(
-            'spear', 'shield').all()
+    # queryset = Article.objects.select_related('author').prefetch_related(
+    #         'spear', 'shield').all()
+    queryset = Article.objects.all()
 
 #
 # class ArticleActionView(APIView):
