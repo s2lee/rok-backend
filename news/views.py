@@ -95,12 +95,18 @@ class ArticleActionView(APIView):
     def post(self, request, pk, action_type):
         return self.action()
 
-    def get_action_type(self):
-        pass
+    def get_action_type(self, pk, action_type):
+        article = self.get_queryset()
+        article_action = getattr(article, action_type)
+        return article_action
 
     def action(self):
-        self.get_action_type()
+        article_action = self.get_action_type()
         pass
+
+    def get_queryset(self, pk):
+        article = get_object_or_404(Article, pk=pk)
+        return article
 
 
 
