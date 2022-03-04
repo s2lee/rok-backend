@@ -88,18 +88,18 @@ class ArticleDetailAPIView(generics.RetrieveAPIView):
     queryset = Article.objects.select_related('author').prefetch_related(
             'spear', 'shield').all()
 
-
-class ArticleActionView(APIView):
-    permission_classes = IsAuthenticated
-
-    def post(self, request, pk, action_type):
-        return self.action()
-
-    def get_action_type(self, pk, action_type):
-        article = self.get_queryset()
-        article_action = getattr(article, action_type)
-
-        return article_action
+#
+# class ArticleActionView(APIView):
+#     permission_classes = IsAuthenticated
+#
+#     def post(self, request, pk, action_type):
+#         return self.action()
+#
+#     def get_action_type(self, pk, action_type):
+#         article = self.get_queryset()
+#         article_action = getattr(article, action_type)
+#
+#         return article_action
 
     # def action(self):
     #     article_action = self.get_action_type()
@@ -120,10 +120,10 @@ class ArticleActionView(APIView):
     #     response.data['total_action_count'] = article_action.count()
     #     return response
     #     pass
-
-    def get_queryset(self, pk):
-        article = get_object_or_404(Article, pk=pk)
-        return article
+    #
+    # def get_queryset(self, pk):
+    #     article = get_object_or_404(Article, pk=pk)
+    #     return article
 
 
 
