@@ -88,42 +88,42 @@ class ArticleDetailAPIView(generics.RetrieveAPIView):
     queryset = Article.objects.select_related('author').prefetch_related(
             'spear', 'shield').all()
 
-#
-# class ArticleActionView(APIView):
-#     permission_classes = IsAuthenticated
-#
-#     def post(self, request, pk, action_type):
-#         return self.action()
-#
-#     def get_action_type(self, pk, action_type):
-#         article = self.get_queryset()
-#         article_action = getattr(article, action_type)
-#
-#         return article_action
 
-    # def action(self):
-    #     article_action = self.get_action_type()
-    #     user = request.user
-    #     response = Response(
-    #         {'detail': f'{action_type} 성공적으로 사용.'},
-    #         status=status.HTTP_200_OK,
-    #     )
-    #     if article.author != user:
-    #         if article_action.filter(id=user.id).exists():
-    #             article_action.remove(user)
-    #             response.data = {'detail': f'{action_type} 사용을 취소합니다.'}
-    #         else:
-    #             article_action.add(user)
-    #     else:
-    #         response.data = {'detail': '기사 작성자는 사용할 수 없습니다.'}
-    #         response.status_code = status.HTTP_401_UNAUTHORIZED
-    #     response.data['total_action_count'] = article_action.count()
-    #     return response
-    #     pass
-    #
-    # def get_queryset(self, pk):
-    #     article = get_object_or_404(Article, pk=pk)
-    #     return article
+class ArticleActionView(APIView):
+    permission_classes = IsAuthenticated
+
+    def post(self, request, pk, action_type):
+        return self.action()
+
+    def get_action_type(self, pk, action_type):
+        article = self.get_queryset()
+        article_action = getattr(article, action_type)
+
+        return article_action
+
+    def action(self):
+        article_action = self.get_action_type()
+        user = request.user
+        response = Response(
+            {'detail': f'{action_type} 성공적으로 사용.'},
+            status=status.HTTP_200_OK,
+        )
+        if article.author != user:
+            if article_action.filter(id=user.id).exists():
+                article_action.remove(user)
+                response.data = {'detail': f'{action_type} 사용을 취소합니다.'}
+            else:
+                article_action.add(user)
+        else:
+            response.data = {'detail': '기사 작성자는 사용할 수 없습니다.'}
+            response.status_code = status.HTTP_401_UNAUTHORIZED
+        response.data['total_action_count'] = article_action.count()
+        return response
+        pass
+
+    def get_queryset(self, pk):
+        article = get_object_or_404(Article, pk=pk)
+        return article
 
 
 
