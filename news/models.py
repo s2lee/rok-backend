@@ -24,29 +24,6 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
-    # @property
-    # def num_likes(self):
-    #     return self.spaer.count()
-
-    def number_of_likes(self):
-        return self.spear.count()
-
-    def get_comments_count(self):
-        return self.comment.count()
-
-    # def get_spear_count(self, obj):
-    #     return obj.spear.count()
-    #
-    # def get_shield_count(self, obj):
-    #     return obj.shield.count()
-
-    # def get_comments_count(self, obj):
-    #     return obj.comment.count()
-    # 
-    # # def get_total_point(self):
-    #     return self.spear.count() - self.shield.count()
-
-
     class Meta:
         ordering = ["-date_posted"]
 
