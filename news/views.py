@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
+
 from rest_framework import viewsets, status
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, GenericAPIView
 from rest_framework.response import Response
@@ -40,12 +42,13 @@ class ArticleListCreateAPIView(ListCreateAPIView):
 
     def list(self, request, *args, **kwargs):
         article = self.get_queryset()
-        top_article = article.order_by('date_posted')[:2]  # spear 순으로
+        top_article = article.annotate(
+            total_point=Count('spear') - Count('shield')).order_by('-total_point')[:3]
         article_serializer = self.get_serializer(article, many=True)
         top_article_serializer = self.get_serializer(top_article, many=True)
         return Response({
             'articles': article_serializer.data,
-            'top_articles': top_article_serializer.data
+            'top_articles': top_article_serializer.data,
         })
 
     def get_serializer_class(self):
