@@ -33,9 +33,10 @@ urlpatterns = [
     path('<str:category>/', article_list, name='article-list'),
     path('<str:category>/<int:pk>/', article_detail, name='article-detail'),
     path('<int:article_id>/comments/', comment_list, name='comment-list'),
-    path('<int:pk>/<str:action_type>', action_button, name='action-button'),
+    # path('<int:pk>/<str:action_type>', action_button, name='action-button'),
     # path('test/<str:category>/', ArticleSectionListAPIView.as_view(), ),
     # path('test/<str:category>/post', ArticleCreateAPIView.as_view()),
     path('test/<str:category>/<int:pk>', ArticleDetailAPIView.as_view()),
-    path('test1/<str:category>', ArticleListCreateAPIView.as_view())
+    path('test1/<str:category>', ArticleListCreateAPIView.as_view()),
+    path('<int:pk>/<str:action_type>', ArticleActionView.as_view())
 ]
