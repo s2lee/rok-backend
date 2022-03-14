@@ -5,22 +5,12 @@ from django.urls import path, include
 
 router = DefaultRouter()
 
-article_list = ArticleViewSet.as_view({
-    'get': 'list',
-    'post': 'create'
-})
 
 all_article_list = AllArticleViewSet.as_view({
     'get': 'list',
     'post': 'create'
 })
 
-article_detail = ArticleViewSet.as_view({
-    'get': 'retrieve',
-    'put': 'update',
-    'patch': 'partial_update',
-    'delete': 'destroy'
-})
 
 comment_list = CommentViewSet.as_view({
     'get': 'list',
@@ -30,13 +20,8 @@ comment_list = CommentViewSet.as_view({
 urlpatterns = [
     path('', include(router.urls)),
     path('home/', all_article_list),
-    path('<str:category>/', article_list, name='article-list'),
-    path('<str:category>/<int:pk>/', article_detail, name='article-detail'),
     path('<int:article_id>/comments/', comment_list, name='comment-list'),
-    # path('<int:pk>/<str:action_type>', action_button, name='action-button'),
-    # path('test/<str:category>/', ArticleSectionListAPIView.as_view(), ),
-    # path('test/<str:category>/post', ArticleCreateAPIView.as_view()),
-    path('test/<str:category>/<int:pk>', ArticleDetailAPIView.as_view()),
-    path('test1/<str:category>', ArticleListCreateAPIView.as_view()),
-    path('<int:pk>/<str:action_type>', ArticleActionView.as_view())
+    path('<str:category>/', ArticleListCreateAPIView.as_view()),
+    path('<str:category>/<int:pk>/', ArticleDetailAPIView.as_view()),
+    # path('<int:pk>/<str:action_type>', ArticleActionView.as_view())
 ]
