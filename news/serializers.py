@@ -49,14 +49,18 @@ class CommentSerializer(serializers.ModelSerializer):
 class ArticleSectionSerializer(serializers.ModelSerializer):
     nickname = serializers.ReadOnlyField(source='author.nickname')
     comments_count = serializers.SerializerMethodField()
+    total_point = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
         fields = ('id', 'title', 'contents', 'date_posted',
-                  'nickname', 'image', 'comments_count')
+                  'nickname', 'image', 'comments_count', 'total_point')
 
     def get_comments_count(self, obj):
         return obj.comment.count()
+
+    def get_total_point(self, obj):
+        return obj.spear.count() - obj.shield.count()
 
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
