@@ -15,16 +15,6 @@ class AllArticleViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
 
 
-class ArticleViewSet(viewsets.ModelViewSet):
-    serializer_class = ArticleSerializer
-
-    def get_queryset(self):
-        return Article.objects.filter(category__name=self.kwargs.get('category'))
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
 
