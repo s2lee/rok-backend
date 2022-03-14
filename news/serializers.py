@@ -1,35 +1,14 @@
 from rest_framework import serializers
 from .models import Article, Comment
 
-# homeArticle id, category_na,e, title, 'date_posted' 필요
+
+# homeArticle id, category_name, title, 'date_posted' 필요
 class AllArticleSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source='category.name')
 
     class Meta:
         model = Article
         fields = ('id', 'category_name', 'title', 'date_posted')
-
-
-class ArticleSerializer(serializers.ModelSerializer):
-    category_name = serializers.ReadOnlyField(source='category.name')
-    author_name = serializers.ReadOnlyField(source='author.username')
-    spear_count = serializers.SerializerMethodField()
-    shield_count = serializers.SerializerMethodField()
-    comments_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Article
-        fields = ('id', 'category', 'title', 'contents', 'date_posted', 'spear', 'shield', 'category_name',
-                  'author_name', 'image', 'spear_count', 'shield_count', 'comments_count')
-
-    def get_spear_count(self, obj):
-        return obj.spear.count()
-
-    def get_shield_count(self, obj):
-        return obj.shield.count()
-
-    def get_comments_count(self, obj):
-        return obj.comment.count()
 
 
 class CommentSerializer(serializers.ModelSerializer):
