@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Count
 
 from rest_framework import viewsets, status
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, GenericAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
@@ -10,9 +10,11 @@ from .serializers import *
 from .models import Article, Comment, Category
 
 
-class AllArticleViewSet(viewsets.ModelViewSet):
-    serializer_class = AllArticleSerializer
-    queryset = Article.objects.all()
+class HomeArticleListView(ListAPIView):
+    serializer_class = HomeArticleSerializer
+
+    def get_queryset(self):
+        return Article.objects.all()
 
 
 class CommentViewSet(viewsets.ModelViewSet):
