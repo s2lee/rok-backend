@@ -17,27 +17,16 @@ class HomeArticleListView(ListAPIView):
         return Article.objects.all()
 
 
-class CommentViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentSerializer
-
-    def get_queryset(self):
-        return Comment.objects.filter(parent=None,
-                                      article=self.kwargs.get('article_id'))
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-
 class ArticleListCreateAPIView(ListCreateAPIView):
     def get_queryset(self):
         return Article.objects.filter(category__name=self.kwargs.get('category'))
 
     def list(self, request, *args, **kwargs):
-        article = self.get_queryset()
-        top_article = article.annotate(
+        articles = self.get_queryset()
+        top_articles = articles.annotate(
             total_point=Count('spear') - Count('shield')).order_by('-total_point')[:3]
-        article_serializer = self.get_serializer(article, many=True)
-        top_article_serializer = self.get_serializer(top_article, many=True)
+        article_serializer = self.get_serializer(articles, many=True)
+        top_article_serializer = self.get_serializer(top_articles, many=True)
         return Response({
             'articles': article_serializer.data,
             'top_articles': top_article_serializer.data,
@@ -83,3 +72,13 @@ class ArticleActionView(GenericAPIView):
         response.data['total_action_count'] = article_action.count()
         return response
 
+
+class CommentListCreateAPIView(ListCreateAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        return Comment.objects.filter(parent=None,
+                                      article=self.kwargs.get('article_id'))
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
