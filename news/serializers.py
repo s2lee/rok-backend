@@ -15,20 +15,6 @@ class HomeArticleSerializer(serializers.ModelSerializer):
         return obj.comment.count()
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    reply = serializers.SerializerMethodField()
-    author_name = serializers.ReadOnlyField(source='author.username')
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'article', 'author_name', 'contents', 'date_created', 'reply')
-
-    def get_reply(self, instance):
-        serializer = self.__class__(instance.reply, many=True)
-        serializer.bind('', self)
-        return serializer.data
-
-
 class ArticleSectionSerializer(serializers.ModelSerializer):
     nickname = serializers.ReadOnlyField(source='author.nickname')
     comments_count = serializers.SerializerMethodField()
@@ -57,6 +43,7 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
     spear_count = serializers.SerializerMethodField()
     shield_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
+    date_posted = serializers.DateTimeField(format="%Y.%d.%m %H:%M")
 
     class Meta:
         model = Article
@@ -73,3 +60,15 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
         return obj.comment.count()
 
 
+class CommentSerializer(serializers.ModelSerializer):
+    reply = serializers.SerializerMethodField()
+    nickname = serializers.ReadOnlyField(source='author.nickname')
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'article', 'nickname', 'contents', 'date_created', 'reply')
+
+    def get_reply(self, instance):
+        serializer = self.__class__(instance.reply, many=True)
+        serializer.bind('', self)
+        return serializer.data
