@@ -2,13 +2,17 @@ from rest_framework import serializers
 from .models import Article, Comment
 
 
-# homeArticle id, category_name, title, 'date_posted' 필요
-class AllArticleSerializer(serializers.ModelSerializer):
+class HomeArticleSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source='category.name')
+    comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
-        fields = ('id', 'category_name', 'title', 'date_posted')
+        fields = ('id', 'category_name', 'title', 'contents',
+                  'image', 'date_posted', 'comments_count')
+
+    def get_comments_count(self, obj):
+        return obj.comment.count()
 
 
 class CommentSerializer(serializers.ModelSerializer):
