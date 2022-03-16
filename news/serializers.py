@@ -43,7 +43,7 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
     spear_count = serializers.SerializerMethodField()
     shield_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
-    date_posted = serializers.DateTimeField(format="%Y.%d.%m %H:%M")
+    date_posted = serializers.DateTimeField(format="%Y.%m.%d %H:%M")
 
     class Meta:
         model = Article
@@ -63,7 +63,7 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     reply = serializers.SerializerMethodField()
     nickname = serializers.ReadOnlyField(source='author.nickname')
-    date_created = serializers.DateTimeField(format="%Y.%d.%m %H:%M", read_only=True)
+    date_created = serializers.DateTimeField(format="%Y.%m.%d %H:%M", read_only=True)
 
     class Meta:
         model = Comment
