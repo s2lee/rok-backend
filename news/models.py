@@ -17,7 +17,7 @@ class Article(models.Model):
     contents = models.TextField(max_length=150)
     date_posted = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    spear = models.ManyToManyField(User, blank=True, related_name='article_spear')
+    spear = models.ManyToManyField(User, blank=True, related_name='spear')
     shield = models.ManyToManyField(User, blank=True, related_name='shield')
     image = models.ImageField(blank=True, null=True, upload_to="article/%Y/%m/%d")
 
