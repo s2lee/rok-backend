@@ -63,6 +63,7 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     reply = serializers.SerializerMethodField()
     nickname = serializers.ReadOnlyField(source='author.nickname')
+    date_created = serializers.DateTimeField(format="%Y.%d.%m %H:%M", read_only=True)
 
     class Meta:
         model = Comment
