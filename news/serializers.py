@@ -67,7 +67,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'article', 'nickname', 'contents', 'date_created', 'reply')
+        fields = ('id', 'article', 'nickname', 'contents', 'date_created', 'parent', 'reply')
 
     def get_reply(self, instance):
         serializer = self.__class__(instance.reply, many=True)
