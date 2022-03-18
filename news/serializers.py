@@ -47,7 +47,7 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ('title', 'contents', 'nickname', 'date_posted', 'spear', 'shield',
+        fields = ('id', 'title', 'contents', 'nickname', 'date_posted', 'spear', 'shield',
                   'image', 'spear_count', 'shield_count', 'comments_count')
 
     def get_spear_count(self, obj):
