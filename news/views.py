@@ -6,7 +6,8 @@ from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIV
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import *
+from .serializers import HomeArticleSerializer, \
+    ArticleSectionSerializer, ArticleCreateSerializer, ArticleDetailSerializer, CommentSerializer
 from .models import Article, Comment, Category
 
 
