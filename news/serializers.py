@@ -54,7 +54,7 @@ class ArticleDetailSerializer(CommonFieldMixin, serializers.ModelSerializer):
         return obj.shield.count()
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class CommentSerializer(CommonFieldMixin, serializers.ModelSerializer):
     reply = serializers.SerializerMethodField()
     date_created = serializers.DateTimeField(format="%Y.%m.%d %H:%M", read_only=True)
 
