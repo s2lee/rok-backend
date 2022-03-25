@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Count
+from django.db.models import Count, F
 
-from rest_framework import viewsets, status
+from rest_framework import status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -19,12 +19,13 @@ class HomeArticleListView(ListAPIView):
 
 class ArticleListCreateAPIView(ListCreateAPIView):
     def get_queryset(self):
-        return Article.objects.filter(category__name=self.kwargs.get('category'))
+        return Article.objects.select_related('author').prefetch_related(
+            'spear', 'shield', 'comment').filter(category__name=self.kwargs.get('category'))
 
     def list(self, request, *args, **kwargs):
         articles = self.get_queryset()
-        top_articles = articles.annotate(
-            total_point=Count('spear') - Count('shield')).order_by('-total_point')[:3]
+        top_articles = articles.annotate(total_point=Count(
+            'spear', distinct=True) - Count('shield', distinct=True)).order_by('-total_point')[:3]
         article_serializer = self.get_serializer(articles, many=True)
         top_article_serializer = self.get_serializer(top_articles, many=True)
         return Response({
@@ -77,8 +78,13 @@ class CommentListCreateAPIView(ListCreateAPIView):
     serializer_class = CommentSerializer
 
     def get_queryset(self):
-        return Comment.objects.filter(parent=None,
-                                      article=self.kwargs.get('article_id'))
+        return Comment.objects.select_related('author').prefetch_related(
+            'reply__author').filter(parent=None, article=self.kwargs.get('article_id'))
 
     def perform_create(self, serializer):
+        parent = self.request.data['parent']
+        if parent:
+            comment_qs = Comment.objects.get(id=parent)
+            serializer.save(author=self.request.user, parent=comment_qs)
+
         serializer.save(author=self.request.user)
