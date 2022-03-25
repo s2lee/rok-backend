@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
 
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework import status
+from rest_framework.test import APITestCase
 
-from .models import *
-from .views import *
+from .models import Article, Category
 
 
 User = get_user_model()
