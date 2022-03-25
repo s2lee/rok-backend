@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Count, F
+from django.db.models import Count
 
 from rest_framework import status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, GenericAPIView
@@ -83,8 +83,8 @@ class CommentListCreateAPIView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         parent = self.request.data['parent']
+        comment_qs = None
         if parent:
             comment_qs = Comment.objects.get(id=parent)
-            serializer.save(author=self.request.user, parent=comment_qs)
 
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user, parent=comment_qs)
