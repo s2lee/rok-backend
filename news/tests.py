@@ -52,9 +52,23 @@ class NewsAPITests(APITestCase):
         self.assertEqual(response.data['title'], 'Fractal is wonderful')
 
     def test_article_action(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/{0}/shield'.format(self.article.id))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['detail'], '기사 작성자는 사용할 수 없습니다.')
+
         self.client.force_authenticate(user=self.user2)
         response = self.client.post('/{0}/spear'.format(self.article.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], 'spear 성공적으로 사용.')
+        self.assertEqual(response.data['total_action_count'], self.article.spear.count())
+        self.assertEqual(self.article.spear.count(), 1)
+
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post('/{0}/spear'.format(self.article.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], 'spear 사용을 취소합니다.')
+        self.assertEqual(self.article.spear.count(), 0)
 
     def test_get_comment(self):
         response = self.client.get('/{0}/comments/'.format(self.article.id))
