@@ -14,6 +14,9 @@ class NewsAPITests(APITestCase):
         self.user = User.objects.create_user(username='username',
                                              password='password123',
                                              nickname='test_nickname')
+        self.user2 = User.objects.create_user(username='username2',
+                                              password='password123',
+                                              nickname='test_nickname2')
         self.category = Category.objects.create(name='art')
         self.article = Article.objects.create(title='Fractal is wonderful',
                                               category=self.category,
@@ -47,6 +50,11 @@ class NewsAPITests(APITestCase):
         response = self.client.get('/art/{0}/'.format(self.article.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], 'Fractal is wonderful')
+
+    def test_article_action(self):
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post('/{0}/spear'.format(self.article.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_comment(self):
         response = self.client.get('/{0}/comments/'.format(self.article.id))
