@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',  # admin에서 user delete하기 위해 넣음
     'dj_rest_auth.registration',
+    'django_celery_beat',
+    'django_celery_results',
 
 ]
 
@@ -76,7 +78,7 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 ACCOUNT_ADAPTER = 'accounts.adapter.CustomAccountAdapter'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=4),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -93,6 +95,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+]
+
+INTERNAL_IPS = [
+    "127.0.0.1",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -162,7 +169,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # 추가
-
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000'
 ]
+
+# CELERY SETTINGS
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = 'Asia/Seoul'
+CELERY_BEAT_SCHEDULE = {
+    'print-every-10-seconds': {
+        'task': 'news.tasks.print_hello',
+        'schedule': 5.0,
+    },
+
+}
