@@ -20,6 +20,7 @@ class Article(models.Model):
     spear = models.ManyToManyField(User, blank=True, related_name='spear')
     shield = models.ManyToManyField(User, blank=True, related_name='shield')
     image = models.ImageField(blank=True, null=True, upload_to="article/%Y/%m/%d")
+    is_news = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
