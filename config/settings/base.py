@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+from celery.schedules import crontab
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -181,9 +182,8 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = 'Asia/Seoul'
 CELERY_BEAT_SCHEDULE = {
-    'print-every-10-seconds': {
-        'task': 'news.tasks.print_hello',
-        'schedule': 5.0,
+    'choose_article_every_midnight': {
+        'task': 'news.tasks.choose_article_every_midnight',
+        'schedule': crontab(minute=0, hour=0),
     },
-
 }
