@@ -20,14 +20,14 @@ class HomeArticleSerializer(CommonFieldMixin, serializers.ModelSerializer):
 
 
 class ArticleSectionSerializer(CommonFieldMixin, serializers.ModelSerializer):
-    total_point = serializers.SerializerMethodField()
+    total_votes = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
         fields = ('id', 'title', 'contents', 'date_posted',
-                  'nickname', 'image', 'comments_count', 'total_point')
+                  'nickname', 'image', 'comments_count', 'total_votes')
 
-    def get_total_point(self, obj):
+    def get_total_votes(self, obj):
         return obj.spear.count() - obj.shield.count()
 
 
@@ -66,3 +66,9 @@ class CommentSerializer(CommonFieldMixin, serializers.ModelSerializer):
         serializer = self.__class__(instance.reply, many=True)
         serializer.bind('', self)
         return serializer.data
+
+
+class SearchNewsByDateSerializer(CommonFieldMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ('id', 'title', 'contents', 'image', 'comments_count')
