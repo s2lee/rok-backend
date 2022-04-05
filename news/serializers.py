@@ -4,6 +4,7 @@ from .models import Article, Comment
 
 class CommonFieldMixin(serializers.Serializer):
     nickname = serializers.ReadOnlyField(source='author.nickname')
+    category_name = serializers.ReadOnlyField(source='category.name')
     comments_count = serializers.SerializerMethodField()
 
     def get_comments_count(self, obj):
@@ -11,8 +12,6 @@ class CommonFieldMixin(serializers.Serializer):
 
 
 class HomeArticleSerializer(CommonFieldMixin, serializers.ModelSerializer):
-    category_name = serializers.ReadOnlyField(source='category.name')
-
     class Meta:
         model = Article
         fields = ('id', 'category_name', 'title', 'contents',
@@ -71,4 +70,4 @@ class CommentSerializer(CommonFieldMixin, serializers.ModelSerializer):
 class SearchNewsByDateSerializer(CommonFieldMixin, serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ('id', 'title', 'contents', 'image', 'comments_count')
+        fields = ('id', 'category_name', 'title', 'contents', 'image', 'comments_count')
