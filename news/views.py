@@ -123,11 +123,7 @@ class SearchNewsByDate(GenericAPIView):
 
     def get_response(self):
         divided_articles = self.divide_articles_by_category()
-        if any(divided_articles.values()):
-            return Response(divided_articles, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {'detail': f'{self.get_news_date()} 에는 작성된 기사가 없습니다.'},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-
+        response = Response(divided_articles, status=status.HTTP_200_OK)
+        if not any(divided_articles.values()):
+            response.data = {'detail': f'{self.get_news_date()}의 기사는 없습니다.'}
+        return response
