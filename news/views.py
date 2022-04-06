@@ -53,27 +53,32 @@ class ArticleDetailAPIView(RetrieveAPIView):
             'spear', 'shield').all()
 
 
-class ArticleActionView(GenericAPIView):
+class ArticleVoteView(GenericAPIView):
     permission_classes = (IsAuthenticated, )
 
-    def post(self, request, pk, action_type):
-        article = get_object_or_404(Article, pk=pk)
-        article_action = getattr(article, action_type)
-        user = request.user
-        response = Response(
-            {'detail': f'{action_type} 성공적으로 사용.'},
-            status=status.HTTP_200_OK,
-        )
-        if article.author != user:
-            if article_action.filter(id=user.id).exists():
-                article_action.remove(user)
-                response.data = {'detail': f'{action_type} 사용을 취소합니다.'}
-            else:
-                article_action.add(user)
+    def post(self, request, *args, **kwargs):
+        return self.vote_for_article()
+
+    def get_object(self):
+        article_id = self.kwargs.get('article_id')
+        return get_object_or_404(Article, pk=article_id)
+
+    def get_choice(self):
+        article = self.get_object()
+        choice = self.kwargs.get('choice')
+        return getattr(article, choice)
+
+    def vote_for_article(self):
+        voted_article = self.get_choice()
+        user = self.request.user
+        response = Response({'detail': '성공적으로 사용.'}, status=status.HTTP_200_OK)
+        if voted_article.filter(id=user.id).exists():
+            voted_article.remove(user)
+            response.data = {'detail': '사용을 취소합니다.'}
         else:
-            response.data = {'detail': '기사 작성자는 사용할 수 없습니다.'}
-            response.status_code = status.HTTP_401_UNAUTHORIZED
-        response.data['total_action_count'] = article_action.count()
+            voted_article.add(user)
+
+        response.data['total_choice_count'] = voted_article.count()
         return response
 
 
