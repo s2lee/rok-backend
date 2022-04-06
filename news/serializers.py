@@ -43,8 +43,9 @@ class ArticleDetailSerializer(CommonFieldMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'contents', 'nickname', 'date_posted', 'spear', 'shield',
-                  'image', 'spear_count', 'shield_count', 'comments_count')
+        fields = ('id', 'title', 'contents', 'nickname', 'author',
+                  'date_posted', 'spear', 'shield', 'image', 'spear_count',
+                  'shield_count', 'comments_count')
 
     def get_spear_count(self, obj):
         return obj.spear.count()
