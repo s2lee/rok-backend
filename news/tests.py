@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -11,21 +12,20 @@ User = get_user_model()
 
 class NewsAPITests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='username',
-                                             password='password123',
+        self.user = User.objects.create_user(username='test_user',
+                                             password='test_password',
                                              nickname='test_nickname')
-        self.user2 = User.objects.create_user(username='username2',
-                                              password='password123',
-                                              nickname='test_nickname2')
         self.category = Category.objects.create(name='art')
         self.article = Article.objects.create(title='Fractal is wonderful',
                                               category=self.category,
                                               contents='Fractal is ...',
-                                              author=self.user)
+                                              author=self.user,
+                                              is_news=True)
         self.article_count = Article.objects.all().count()
         self.comment = Comment.objects.create(article=self.article,
                                               author=self.user,
                                               contents='test comment')
+        self.current_date_time = timezone.now()
 
     def test_article_list(self):
         response = self.client.get('/art/')
@@ -51,30 +51,28 @@ class NewsAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], 'Fractal is wonderful')
 
-    def test_article_action(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post('/{0}/shield'.format(self.article.id))
+    def test_article_vote(self):
+        response = self.client.post('/{0}/vote/shield/'.format(self.article.id))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data['detail'], '기사 작성자는 사용할 수 없습니다.')
 
-        self.client.force_authenticate(user=self.user2)
-        response = self.client.post('/{0}/spear'.format(self.article.id))
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/{0}/vote/spear/'.format(self.article.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], 'spear 성공적으로 사용.')
-        self.assertEqual(response.data['total_action_count'], self.article.spear.count())
+        self.assertEqual(response.data['detail'], '성공적으로 사용.')
+        self.assertEqual(response.data['total_choice_count'], self.article.spear.count())
         self.assertEqual(self.article.spear.count(), 1)
 
-        self.client.force_authenticate(user=self.user2)
-        response = self.client.post('/{0}/spear'.format(self.article.id))
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/{0}/vote/spear/'.format(self.article.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], 'spear 사용을 취소합니다.')
+        self.assertEqual(response.data['detail'], '사용을 취소합니다.')
         self.assertEqual(self.article.spear.count(), 0)
 
-    def test_get_comment(self):
+    def test_comment_list(self):
         response = self.client.get('/{0}/comments/'.format(self.article.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_create_comment(self):
+    def test_comment_create(self):
         data = {
             'article': self.article.id,
             'contents': 'How calculus makes the world smarter',
@@ -84,4 +82,16 @@ class NewsAPITests(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.post('/{0}/comments/'.format(self.article.id), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_search_news_by_date(self):
+        news_date = self.current_date_time.strftime('%Y/%m/%d')
+        response = self.client.get('/news/{news_date}/'.format(news_date=news_date))
+        self.assertIn('art', response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/news/2022/04/06/')
+        self.assertEqual(response.data['detail'], '2022-04-06 00:00:00의 기사는 없습니다.')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
 
