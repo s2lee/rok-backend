@@ -1,10 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.test import override_settings
+
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .models import Article, Category, Comment
+from .tasks import choose_article_every_midnight
 
 
 User = get_user_model()
@@ -93,5 +96,7 @@ class NewsAPITests(APITestCase):
         self.assertEqual(response.data['detail'], '2022-04-06 00:00:00의 기사는 없습니다.')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    def test_choose_article_every_midnight(self):
+        self.assertEqual(choose_article_every_midnight(), 'success')
 
