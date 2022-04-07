@@ -86,8 +86,9 @@ class CommentListCreateAPIView(ListCreateAPIView):
     serializer_class = CommentSerializer
 
     def get_queryset(self):
+        article_id = self.kwargs.get('article_id')
         return Comment.objects.select_related('author').prefetch_related(
-            'reply__author').filter(parent=None, article=self.kwargs.get('article_id'))
+            'reply__author').filter(parent=None, article=article_id)
 
     def perform_create(self, serializer):
         parent = self.request.data['parent']
@@ -113,7 +114,8 @@ class SearchNewsByDate(GenericAPIView):
 
     def get_queryset(self):
         news_date = self.get_news_date()
-        articles = Article.objects.filter(date_posted__date=news_date, is_news=True)
+        articles = Article.objects_sorted_by_vote.filter(
+            date_posted__date=news_date, is_news=True)
         return articles
 
     def divide_articles_by_category(self):
@@ -121,7 +123,7 @@ class SearchNewsByDate(GenericAPIView):
         categories = Category.objects.all()
         divided_articles = {}
         for category in categories:
-            article_by_category = articles.filter(category__name=category)
+            article_by_category = articles.filter(category__name=category)[:3]
             serializer = self.get_serializer(article_by_category, many=True)
             divided_articles[f'{category}'] = serializer.data
         return divided_articles
