@@ -1,5 +1,4 @@
 from datetime import date
-from django.db.models import Count
 from django.contrib.auth import get_user_model
 from celery import shared_task
 from .models import Category, Article
