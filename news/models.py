@@ -1,7 +1,14 @@
 from django.db import models
+from django.db.models import Count
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+
+class ArticleVoteManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().annotate(total_votes=Count(
+            'spear', distinct=True) - Count('shield', distinct=True)).order_by('-total_votes')
 
 
 class Category(models.Model):
@@ -9,6 +16,8 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    objects = models.Manager()
 
 
 class Article(models.Model):
@@ -29,6 +38,7 @@ class Article(models.Model):
         ordering = ["-date_posted"]
 
     objects = models.Manager()
+    objects_sorted_by_vote = ArticleVoteManager()
 
 
 class Comment(models.Model):
