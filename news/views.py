@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
@@ -9,15 +9,34 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .serializers import HomeArticleSerializer, ArticleSectionSerializer, ArticleCreateSerializer,\
-    ArticleDetailSerializer, CommentSerializer, SearchNewsByDateSerializer
+    ArticleDetailSerializer, CommentSerializer, SearchNewsByDateSerializer, HomeTopArticleSerializer
 from .models import Article, Comment, Category
 
 
 class HomeArticleListView(ListAPIView):
     serializer_class = HomeArticleSerializer
+    today = date.today()
 
-    def get_queryset(self):
-        return Article.objects.all()
+    def list(self, request, *args, **kwargs):
+        response = Response(self.get_most_voted_article(), status=status.HTTP_200_OK)
+        response.data['article'] = self.get_latest_article()
+        return response
+
+    def get_latest_article(self):
+        articles = Article.objects.select_related(
+            'author', 'category').filter(date_posted__date=self.today)[:10]
+        article_serializer = self.get_serializer(articles, many=True)
+        return article_serializer.data
+
+    def get_most_voted_article(self):
+        temp = {}
+        categories = Category.objects.all()
+        for category in categories:
+            top_articles = Article.objects_sorted_by_vote.select_related(
+                'category').filter(date_posted__date=self.today, category__name=category)[:3]
+            top_article_serializer = HomeTopArticleSerializer(top_articles, many=True)
+            temp[f'{category}'] = top_article_serializer.data
+        return temp
 
 
 class ArticleListCreateAPIView(ListCreateAPIView):
@@ -114,7 +133,8 @@ class SearchNewsByDate(GenericAPIView):
 
     def get_queryset(self):
         news_date = self.get_news_date()
-        articles = Article.objects_sorted_by_vote.filter(
+        articles = Article.objects_sorted_by_vote.select_related(
+            'category').prefetch_related('comment').filter(
             date_posted__date=news_date, is_news=True)
         return articles
 
