@@ -11,11 +11,17 @@ class CommonFieldMixin(serializers.Serializer):
         return obj.comment.count()
 
 
-class HomeArticleSerializer(CommonFieldMixin, serializers.ModelSerializer):
+class HomeTopArticleSerializer(CommonFieldMixin, serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ('id', 'category_name', 'title', 'contents',
-                  'image', 'date_posted', 'comments_count')
+                  'image')
+
+
+class HomeArticleSerializer(CommonFieldMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ('id', 'category_name', 'title', 'nickname')
 
 
 class ArticleSectionSerializer(CommonFieldMixin, serializers.ModelSerializer):
