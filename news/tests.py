@@ -2,13 +2,11 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.test import override_settings
 
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .models import Article, Category, Comment
 from .tasks import choose_article_every_midnight
-
 
 User = get_user_model()
 
@@ -41,6 +39,9 @@ class NewsAPITests(APITestCase):
             'contents': 'leverage',
             'author': self.user
         }
+        response = self.client.post('/art/', data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
         self.client.force_authenticate(user=self.user)
         response = self.client.post('/art/', data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -82,6 +83,9 @@ class NewsAPITests(APITestCase):
             'author': self.user,
             'parent': self.comment.id
         }
+        response = self.client.post('/{0}/comments/'.format(self.article.id), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
         self.client.force_authenticate(user=self.user)
         response = self.client.post('/{0}/comments/'.format(self.article.id), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
