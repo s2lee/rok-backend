@@ -44,7 +44,7 @@ class ArticleListCreateAPIView(ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == 'GET':
-            self.permission_classes = (AllowAny,)
+            self.permission_classes = (AllowAny, )
         else:
             self.permission_classes = (IsAuthenticated, )
 
