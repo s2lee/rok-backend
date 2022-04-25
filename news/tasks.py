@@ -23,4 +23,3 @@ def choose_article_every_midnight():
         print(e)
     else:
         return 'success'
-
