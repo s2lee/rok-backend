@@ -8,5 +8,5 @@ urlpatterns = [
     path('<str:category>/<int:pk>/', ArticleDetailAPIView.as_view()),
     path('<int:article_id>/vote/<str:choice>/', ArticleVoteView.as_view()),
     path('<int:article_id>/comments/', CommentListCreateAPIView.as_view()),
-    re_path(r'^news/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/', SearchNewsByDate.as_view()),
+    re_path(r'^newspaper/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/', SearchNewsByDate.as_view()),
 ]
