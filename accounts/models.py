@@ -32,10 +32,11 @@ class MyUser(AbstractBaseUser):
     username = models.CharField(
         max_length=15,
         unique=True,
+        db_index=True
     )
     nickname = models.CharField(
         max_length=15,
-        unique=True
+        unique=True,
     )
     point = models.PositiveIntegerField(
         null=True,
