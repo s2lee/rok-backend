@@ -30,7 +30,7 @@ class Article(models.Model):
     is_news = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.title)[:30]
+        return str(self.title)[:10]
 
     def get_total_spear(self):
         return self.spear.count()
@@ -54,4 +54,4 @@ class Comment(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.contents)[:20]
+        return str(self.contents)[:10]
