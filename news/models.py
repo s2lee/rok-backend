@@ -17,13 +17,11 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-    objects = models.Manager()
-
 
 class Article(models.Model):
-    title = models.CharField(max_length=30)
+    title = models.CharField(max_length=130)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='article')
-    contents = models.TextField(max_length=150)
+    contents = models.TextField(max_length=1000)
     date_posted = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     spear = models.ManyToManyField(User, blank=True, related_name='spear')
@@ -32,7 +30,13 @@ class Article(models.Model):
     is_news = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.title
+        return str(self.title)[:30]
+
+    def get_total_spear(self):
+        return self.spear.count()
+
+    def get_total_shield(self):
+        return self.shield.count()
 
     class Meta:
         ordering = ["-date_posted"]
@@ -50,6 +54,4 @@ class Comment(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.contents
-
-    objects = models.Manager()
+        return str(self.contents)[:20]
