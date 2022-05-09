@@ -1,67 +1,51 @@
-from datetime import datetime, date
+from datetime import datetime
 
 from django.shortcuts import get_object_or_404
-from django.db.models import Count
 
 from rest_framework import status
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, GenericAPIView
+from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .serializers import HomeArticleSerializer, ArticleSectionSerializer, ArticleCreateSerializer,\
-    ArticleDetailSerializer, CommentSerializer, SearchNewsByDateSerializer, HomeTopArticleSerializer
+    ArticleDetailSerializer, CommentSerializer, SearchNewsByDateSerializer
 from .models import Article, Comment, Category
 
 
-class HomeArticleListView(ListAPIView):
-    serializer_class = HomeArticleSerializer
+class HomeArticleView(APIView):
     permission_classes = (AllowAny, )
-    today = date.today()
 
-    def list(self, request, *args, **kwargs):
-        response = Response(self.get_most_voted_articles(), status=status.HTTP_200_OK)
-        response.data['article'] = self.get_latest_articles()
-        return response
-
-    def get_latest_articles(self):
-        articles = Article.objects.select_related(
-            'author', 'category').filter(date_posted__date=self.today)[:10]
-        article_serializer = self.get_serializer(articles, many=True)
-        return article_serializer.data
-
-    def get_most_voted_articles(self):
-        temp = {}
+    def get(self, request):
+        articles = {}
         categories = Category.objects.all()
         for category in categories:
-            top_articles = Article.objects_sorted_by_vote.select_related(
-                'category').filter(date_posted__date=self.today, category__name=category)[:3]
-            top_article_serializer = HomeTopArticleSerializer(top_articles, many=True)
-            temp[f'{category}'] = top_article_serializer.data
-        return temp
+            most_voted_articles = Article.objects_sorted_by_vote.select_related(
+                'category').filter(category__name=category)[:3]
+            serializer = HomeArticleSerializer(most_voted_articles, many=True)
+            articles[f'{category}'] = serializer.data
+        return Response(articles)
 
 
 class ArticleListCreateAPIView(ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == 'GET':
-            self.permission_classes = (AllowAny, )
+            self.permission_classes = (AllowAny,)
         else:
-            self.permission_classes = (IsAuthenticated, )
-
+            self.permission_classes = (IsAuthenticated,)
         return super(ArticleListCreateAPIView, self).get_permissions()
 
-    def get_queryset(self):
-        return Article.objects.select_related('author').prefetch_related(
-            'spear', 'shield', 'comment').filter(category__name=self.kwargs.get('category'))
+    def get_qs_filtered_by_category(self, obj):
+        return obj.filter(category__name=self.kwargs.get('category'))
 
     def list(self, request, *args, **kwargs):
-        articles = self.get_queryset()
-        top_articles = articles.annotate(total_votes=Count(
-            'spear', distinct=True) - Count('shield', distinct=True)).order_by('-total_votes')[:3]
-        article_serializer = self.get_serializer(articles, many=True)
+        latest_articles = self.get_qs_filtered_by_category(Article.objects)[:10]
+        top_articles = self.get_qs_filtered_by_category(Article.objects_sorted_by_vote)[:5]
+        latest_articles_serializer = self.get_serializer(latest_articles, many=True)
         top_article_serializer = self.get_serializer(top_articles, many=True)
         return Response({
-            'articles': article_serializer.data,
+            'articles': latest_articles_serializer.data,
             'top_articles': top_article_serializer.data,
         })
 
@@ -153,8 +137,7 @@ class SearchNewsByDate(GenericAPIView):
     def get_queryset(self):
         news_date = self.get_news_date()
         articles = Article.objects_sorted_by_vote.select_related(
-            'category').prefetch_related('comment').filter(
-            date_posted__date=news_date, is_news=True)
+            'category').filter(date_posted__date=news_date, is_news=True)
         return articles
 
     def divide_articles_by_category(self):
@@ -162,8 +145,8 @@ class SearchNewsByDate(GenericAPIView):
         categories = Category.objects.all()
         divided_articles = {}
         for category in categories:
-            article_by_category = articles.filter(category__name=category)[:3]
-            serializer = self.get_serializer(article_by_category, many=True)
+            articles_by_category = articles.filter(category__name=category)[:3]
+            serializer = self.get_serializer(articles_by_category, many=True)
             divided_articles[f'{category}'] = serializer.data
         return divided_articles
 
