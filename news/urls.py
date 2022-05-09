@@ -3,7 +3,7 @@ from django.urls import path, re_path
 
 
 urlpatterns = [
-    path('home/', HomeArticleListView.as_view()),
+    path('home/', HomeArticleView.as_view()),
     path('<str:category>/', ArticleListCreateAPIView.as_view()),
     path('<str:category>/<int:pk>/', ArticleDetailAPIView.as_view()),
     path('<int:article_id>/vote/<str:choice>/', ArticleVoteView.as_view()),
