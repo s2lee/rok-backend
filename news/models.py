@@ -1,14 +1,21 @@
+from django.conf import settings
 from django.db import models
 from django.db.models import Count
-from django.conf import settings
 
 User = settings.AUTH_USER_MODEL
 
 
 class ArticleVoteManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(total_votes=Count(
-            'spear', distinct=True) - Count('shield', distinct=True)).order_by('-total_votes')
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                total_votes=Count("spear", distinct=True)
+                - Count("shield", distinct=True)
+            )
+            .order_by("-total_votes")
+        )
 
 
 class Category(models.Model):
@@ -20,12 +27,14 @@ class Category(models.Model):
 
 class Article(models.Model):
     title = models.CharField(max_length=130)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='article')
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="article"
+    )
     contents = models.TextField(max_length=1000)
     date_posted = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    spear = models.ManyToManyField(User, blank=True, related_name='spear')
-    shield = models.ManyToManyField(User, blank=True, related_name='shield')
+    spear = models.ManyToManyField(User, blank=True, related_name="spear")
+    shield = models.ManyToManyField(User, blank=True, related_name="shield")
     image = models.ImageField(blank=True, null=True, upload_to="article/%Y/%m/%d")
     is_news = models.BooleanField(default=False)
 
@@ -46,11 +55,14 @@ class Article(models.Model):
 
 
 class Comment(models.Model):
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comment')
+    article = models.ForeignKey(
+        Article, on_delete=models.CASCADE, related_name="comment"
+    )
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     contents = models.TextField(max_length=600)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
-                               related_name='reply')
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="reply"
+    )
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -9,12 +9,13 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
-from pathlib import Path
-from decouple import config
-from datetime import timedelta
-from celery.schedules import crontab
 import os
+from datetime import timedelta
+from pathlib import Path
+
+from celery.schedules import crontab
+from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -51,7 +52,7 @@ INSTALLED_APPS = [
 
 ]
 
-#-------------추가--------------#
+# -------------추가--------------#
 SITE_ID = 1
 
 REST_FRAMEWORK = {
@@ -85,7 +86,7 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 }
-#-------------추가--------------#
+# -------------추가--------------#
 
 
 MIDDLEWARE = [

@@ -1,11 +1,9 @@
 from django.contrib import admin
-from . import models
 
-@admin.register(models.MyUser)
+from .models import MyUser
+
+
+@admin.register(MyUser)
 class UserAdmin(admin.ModelAdmin):
 
-    list_display = (
-        'username',
-        'nickname',
-        'point'
-    )
+    list_display = ("username", "nickname", "point")
