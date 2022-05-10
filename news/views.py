@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -17,13 +18,16 @@ class HomeArticleView(APIView):
     permission_classes = (AllowAny, )
 
     def get(self, request):
-        articles = {}
-        categories = Category.objects.all()
-        for category in categories:
-            most_voted_articles = Article.objects_sorted_by_vote.select_related(
-                'category').filter(category__name=category)[:3]
-            serializer = HomeArticleSerializer(most_voted_articles, many=True)
-            articles[f'{category}'] = serializer.data
+        articles = cache.get('home_articles')
+        if not articles:
+            articles = {}
+            categories = Category.objects.all()
+            for category in categories:
+                most_voted_articles = Article.objects_sorted_by_vote.select_related(
+                    'category').filter(category__name=category)[:3]
+                serializer = HomeArticleSerializer(most_voted_articles, many=True)
+                articles[f'{category}'] = serializer.data
+            cache.set('home_articles', articles, 300)
         return Response(articles)
 
 
@@ -40,8 +44,12 @@ class ArticleListCreateAPIView(ListCreateAPIView):
         return obj.filter(category__name=self.kwargs.get('category'))
 
     def list(self, request, *args, **kwargs):
+        category = self.kwargs.get('category')
         latest_articles = self.get_qs_filtered_by_category(Article.objects)[:10]
-        top_articles = self.get_qs_filtered_by_category(Article.objects_sorted_by_vote)[:5]
+        top_articles = cache.get(f'{category}_section_top_articles')
+        if not top_articles:
+            top_articles = self.get_qs_filtered_by_category(Article.objects_sorted_by_vote)[:5]
+            cache.set(f'{category}_section_top_articles', top_articles, 30)
         latest_articles_serializer = self.get_serializer(latest_articles, many=True)
         top_article_serializer = self.get_serializer(top_articles, many=True)
         return Response({
@@ -150,9 +158,16 @@ class SearchNewsByDate(GenericAPIView):
             divided_articles[f'{category}'] = serializer.data
         return divided_articles
 
+    def get_newspaper(self):
+        newspaper = cache.get(f'newspaper_{self.get_news_date()}')
+        if not newspaper:
+            newspaper = self.divide_articles_by_category()
+            cache.set(f'newspaper_{self.get_news_date()}', newspaper, 3600)
+        return newspaper
+
     def get_response(self):
-        divided_articles = self.divide_articles_by_category()
-        response = Response(divided_articles, status=status.HTTP_200_OK)
-        if not any(divided_articles.values()):
+        newspaper = self.get_newspaper()
+        response = Response(newspaper, status=status.HTTP_200_OK)
+        if not any(newspaper.values()):
             response.data = {'detail': f'{self.get_news_date()}의 기사는 없습니다.'}
         return response
